@@ -1,7 +1,7 @@
 package part_two
 
 import (
-	"github.com/Nakaoni/advent-of-code-2023/template/utils"
+	"github.com/Nakaoni/advent-of-code-2023/utils"
 	"regexp"
 	"testing"
 )
@@ -10,7 +10,7 @@ func TestGetResult(t *testing.T) {
 	expected := "example"
 	want := regexp.MustCompile(`\b` + expected + `\b`)
 
-	input, err := utils.GetFileContent("../assets/example.txt")
+	input, err := utils.GetFileContent("../assets/example2.txt")
 	if err != nil {
 	}
 	result, err := GetResult(input)

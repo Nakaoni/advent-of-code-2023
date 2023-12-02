@@ -1,7 +1,7 @@
 package part_one
 
 import (
-	"github.com/Nakaoni/advent-of-code-2023/template/utils"
+	"github.com/Nakaoni/advent-of-code-2023/utils"
 	"regexp"
 	"testing"
 )

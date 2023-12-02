@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/Nakaoni/advent-of-code-2023/template/part_one"
 	"github.com/Nakaoni/advent-of-code-2023/template/part_two"
-	"github.com/Nakaoni/advent-of-code-2023/template/utils"
+	"github.com/Nakaoni/advent-of-code-2023/utils"
 	"log"
 )
 

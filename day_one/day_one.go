@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Nakaoni/advent-of-code-2023/day_one/part_one"
-	"github.com/Nakaoni/advent-of-code-2023/day_one/utils"
+	"github.com/Nakaoni/advent-of-code-2023/utils"
 	"log"
 )
 
