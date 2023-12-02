@@ -7,10 +7,10 @@ import (
 )
 
 func TestGetResult(t *testing.T) {
-	expected := "example"
+	expected := "2286"
 	want := regexp.MustCompile(`\b` + expected + `\b`)
 
-	input, err := utils.GetFileContent("../assets/example2.txt")
+	input, err := utils.GetFileContent("../assets/example.txt")
 	if err != nil {
 	}
 	result, err := GetResult(input)
