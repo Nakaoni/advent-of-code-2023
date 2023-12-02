@@ -1,13 +1,13 @@
 # Advent of Code 2023
 
-> [!Note] \
+> [!Note]
 > https://adventofcode.com/2023
 
 <hr>
 
 # The Go Programming Language
 
-> [!Note] \
+> [!Note]
 > https://go.dev/
 > Version: 1.21.4
 
