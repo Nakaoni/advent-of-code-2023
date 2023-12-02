@@ -1,23 +1,27 @@
 package part_two
 
 import (
+	"github.com/Nakaoni/advent-of-code-2023/template/utils"
 	"regexp"
 	"testing"
 )
 
 func TestGetResult(t *testing.T) {
-	input := "Part 2"
-	want := regexp.MustCompile(`\b` + input + `\b`)
+	expected := "example"
+	want := regexp.MustCompile(`\b` + expected + `\b`)
 
-	result, err := GetResult("Part 2")
+	input, err := utils.GetFileContent("../assets/example.txt")
+	if err != nil {
+	}
+	result, err := GetResult(input)
 
 	if !want.MatchString(result) || err != nil {
-		t.Fatalf(`GetResult("Part 2") = %q, %v, want match for %#q, nil`, result, err, want)
+		t.Fatalf(`GetResult(input) = %q, %v, want match for %#q, nil`, result, err, want)
 	}
 }
 
 func TestGetResultEmpty(t *testing.T) {
-	result, err := GetResult("")
+	result, err := GetResult([]string{})
 
 	if result != "" || err == nil {
 		t.Fatalf(`GetResult("") = %q, %v, want ""`, result, err)
