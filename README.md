@@ -8,8 +8,8 @@
 # The Go Programming Language
 
 > [!Note]
-> https://go.dev/ | Version: 1.21.4
+> version: 1.21.4
 
-The goal here is to learn a new language by doing.
+The goal here is to learn a new language by doing. This year, the chosen language is [GO](https://go.dev/ 
 
 The Advent of Code is a great way to start to pick a language
