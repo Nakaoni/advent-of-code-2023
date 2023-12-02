@@ -8,8 +8,7 @@
 # The Go Programming Language
 
 > [!Note]
-> https://go.dev/
-> Version: 1.21.4
+> https://go.dev/ | Version: 1.21.4
 
 The goal here is to learn a new language by doing.
 
