@@ -1,9 +1,10 @@
 package part_two
 
 import (
-	"github.com/Nakaoni/advent-of-code-2023/utils"
 	"regexp"
 	"testing"
+
+	"github.com/Nakaoni/advent-of-code-2023/utils"
 )
 
 func TestGetResult(t *testing.T) {
