@@ -17,6 +17,7 @@ func GetResult(input []string) (string, error) {
 	matrix := buildMatrix(input)
 
 	partNumbers := getPartNumbers(matrix)
+	fmt.Println(partNumbers)
 
 	sum := 0
 	for _, number := range partNumbers {
@@ -43,25 +44,24 @@ func getPartNumbers(matrix [][]string) []int {
 
 	for i := 0; i < len(matrix); i++ {
 		currentLine := matrix[i]
-		var lineAbove []string
-		var lineBelow []string
+		var lineAbove bool
+		var lineBelow bool
 
 		if i == 0 {
-			lineAbove = nil
-			lineBelow = matrix[i+1]
+			lineAbove = false
+			lineBelow = true
 		} else if i == len(matrix)-1 {
-			lineAbove = matrix[i-1]
-			lineBelow = nil
+			lineAbove = true
+			lineBelow = false
 		} else {
-			lineAbove = matrix[i-1]
-			lineBelow = matrix[i+1]
+			lineAbove = true
+			lineBelow = true
 		}
 
 		multSignPositions := getMultSignPositions(matrix)
-		fmt.Println(multSignPositions)
 		numbers := findNumbersInLine(currentLine)
 
-		for _, number := range searchPartNumbersForLine(numbers, currentLine, lineAbove, lineBelow) {
+		for _, number := range searchGear(i, numbers, multSignPositions, currentLine, lineAbove, lineBelow) {
 			partNumbers = append(partNumbers, number)
 		}
 	}
@@ -69,13 +69,8 @@ func getPartNumbers(matrix [][]string) []int {
 	return partNumbers
 }
 
-type MultSignPosition struct {
-	row int
-	col int
-}
-
-func getMultSignPositions(matrix [][]string) []MultSignPosition {
-	var positions []MultSignPosition
+func getMultSignPositions(matrix [][]string) map[int][]int {
+	positions := make(map[int][]int, len(matrix))
 	multSign := regexp.MustCompile(`[*]`)
 
 	for i, row := range matrix {
@@ -84,7 +79,7 @@ func getMultSignPositions(matrix [][]string) []MultSignPosition {
 				continue
 			}
 
-			positions = append(positions, MultSignPosition{row: i, col: j})
+			positions[i] = append(positions[i], j)
 		}
 	}
 
@@ -146,60 +141,70 @@ func findNumbersInLine(line []string) []NumberInLIne {
 	return list
 }
 
-func searchPartNumbersForLine(
+func searchGear(
+	matrixIndex int,
 	numbers []NumberInLIne,
+	multSigns map[int][]int,
 	currentLine []string,
-	lineAbove []string,
-	lineBelow []string,
+	lineAbove bool,
+	lineBelow bool,
 ) []int {
-	var partNumbers []int
+	var gears []int
+	fmt.Println(multSigns)
 
-	for _, n := range numbers {
-		if n.startIndex > 0 {
-			char := currentLine[n.startIndex-1]
-			if symbol.MatchString(char) {
-				partNumbers = append(partNumbers, n.number)
-				continue
+	// [
+	//   [467, 35]
+	//   [617, 598]
+	//   [617]
+	// ]
+
+	for _, number := range numbers {
+		addAsGear := false
+
+		for i:= 0; i <= number.length; i++ {
+			limit := number.startIndex + number.length
+			start := number.startIndex
+			if start == 0 {
+				start -= 1
 			}
-		}
-
-		if n.startIndex+n.length < len(currentLine) {
-			char := currentLine[n.startIndex+n.length]
-			if symbol.MatchString(char) {
-				partNumbers = append(partNumbers, n.number)
-				continue
-			}
-		}
-
-		i := n.startIndex
-
-		if i > 0 {
-			i = i - 1
-		}
-
-		length := i + n.length
-		if length  >= len(currentLine) - 1 {
-			length = length - 1
-		}
-		for ; i <= length + 1; i++ {
-
-			if lineAbove != nil {
-				char := lineAbove[i]
-				if symbol.MatchString(char) {
-					partNumbers = append(partNumbers, n.number)
-					continue
+			if lineAbove {
+				signs, exists := multSigns[matrixIndex - 1]
+				if exists && checkIfNumberIsSurroundedByMult(signs, start, limit) {
+					addAsGear = true
+					break
 				}
 			}
-			if lineBelow != nil {
-				char := lineBelow[i]
-				if symbol.MatchString(char) {
-					partNumbers = append(partNumbers, n.number)
-					continue
 
+			if lineBelow {
+				signs, exists := multSigns[matrixIndex + 1]
+
+				if exists && checkIfNumberIsSurroundedByMult(signs, start, limit) {
+					addAsGear = true
+					break
 				}
 			}
+
+			signs, exists := multSigns[matrixIndex]
+			if exists && checkIfNumberIsSurroundedByMult(signs, start, limit) {
+				addAsGear = true
+				break
+			}
+		}
+
+		if addAsGear {
+			gears = append(gears, number.number)
 		}
 	}
 
-	return partNumbers
+	return gears
+}
+
+func checkIfNumberIsSurroundedByMult(signsInLine []int, start int, end int) bool {
+	for _, sign := range signsInLine {
+		if sign >= start && sign <= end {
+			return true
+		}
+	}
+
+	return false
 }
