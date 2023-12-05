@@ -110,6 +110,15 @@ func findNumbersInLine(line []string) []NumberInLIne {
 		length += 1
 	}
 
+	if number != "" {
+		n, _ := strconv.Atoi(number)
+		list = append(list, NumberInLIne{
+			number:     n,
+			startIndex: startIndex,
+			length:     length,
+		})
+	}
+
 	return list
 }
 
@@ -130,7 +139,7 @@ func searchPartNumbersForLine(
 			}
 		}
 
-		if n.startIndex+n.length < len(currentLine)-1 {
+		if n.startIndex+n.length < len(currentLine) {
 			char := currentLine[n.startIndex+n.length]
 			if symbol.MatchString(char) {
 				partNumbers = append(partNumbers, n.number)
