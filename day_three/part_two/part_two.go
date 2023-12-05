@@ -69,7 +69,6 @@ func getPartNumbers(matrix [][]string) []int {
 	return partNumbers
 }
 
-
 func getMultSignPositions(matrix [][]string) map[int][]int {
 	positions := make(map[int][]int, len(matrix))
 	multSign := regexp.MustCompile(`[*]`)
