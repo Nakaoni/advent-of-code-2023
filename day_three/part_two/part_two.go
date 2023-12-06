@@ -17,7 +17,6 @@ func GetResult(input []string) (string, error) {
 	matrix := buildMatrix(input)
 
 	partNumbers := getPartNumbers(matrix)
-	fmt.Println(partNumbers)
 
 	sum := 0
 	for _, number := range partNumbers {
@@ -41,29 +40,41 @@ func buildMatrix(input []string) [][]string {
 
 func getPartNumbers(matrix [][]string) []int {
 	var partNumbers []int
+	gears := make(map[int][]int)
 
 	for i := 0; i < len(matrix); i++ {
 		currentLine := matrix[i]
-		var lineAbove bool
-		var lineBelow bool
+		var lineAbove []string
+		var lineBelow []string
 
 		if i == 0 {
-			lineAbove = false
-			lineBelow = true
+			lineAbove = nil
+			lineBelow = matrix[i+1]
 		} else if i == len(matrix)-1 {
-			lineAbove = true
-			lineBelow = false
+			lineAbove = matrix[i-1]
+			lineBelow = nil
 		} else {
-			lineAbove = true
-			lineBelow = true
+			lineAbove = matrix[i-1]
+			lineBelow = matrix[i+1]
 		}
 
 		multSignPositions := getMultSignPositions(matrix)
 		numbers := findNumbersInLine(currentLine)
 
-		for _, number := range searchGear(i, numbers, multSignPositions, currentLine, lineAbove, lineBelow) {
-			partNumbers = append(partNumbers, number)
+		searchGear(i, numbers, multSignPositions, currentLine, lineAbove, lineBelow, &gears)
+	}
+
+	for _, numbers := range gears {
+		if len(numbers) < 2 {
+			continue
 		}
+
+		mult := 1
+		for _, n := range numbers {
+			mult = mult * n
+		}
+
+		partNumbers = append(partNumbers, mult)
 	}
 
 	return partNumbers
@@ -72,6 +83,7 @@ func getPartNumbers(matrix [][]string) []int {
 func getMultSignPositions(matrix [][]string) map[int][]int {
 	positions := make(map[int][]int, len(matrix))
 	multSign := regexp.MustCompile(`[*]`)
+	digit := regexp.MustCompile(`\d`)
 
 	for i, row := range matrix {
 		for j, col := range row {
@@ -79,9 +91,47 @@ func getMultSignPositions(matrix [][]string) map[int][]int {
 				continue
 			}
 
+			// ...
+			// .*.
+			// ...
+
+			var hasSurroundingDigits []bool
+			if i > 0 {
+				if
+					digit.MatchString(matrix[i - 1][j - 1]) ||
+					digit.MatchString(matrix[i - 1][j]) ||
+					digit.MatchString(matrix[i - 1][j + 1]) {
+					hasSurroundingDigits = append(hasSurroundingDigits, true)
+				}
+			}
+
+			if i < len(matrix)- 1 {
+				if
+					digit.MatchString(matrix[i + 1][j - 1]) ||
+					digit.MatchString(matrix[i + 1][j]) ||
+					digit.MatchString(matrix[i + 1][j + 1]) {
+					hasSurroundingDigits = append(hasSurroundingDigits, true)
+				}
+			}
+
+			hasSurroundingDigits = append(hasSurroundingDigits, digit.MatchString(matrix[i][j - 1]))
+			hasSurroundingDigits = append(hasSurroundingDigits, digit.MatchString(matrix[i][j + 1]))
+
+			sumTrue := 0
+			for _, b := range hasSurroundingDigits {
+				if b {
+					sumTrue++
+				}
+			}
+
+			if sumTrue < 2 {
+				continue
+			}
+
 			positions[i] = append(positions[i], j)
 		}
 	}
+
 
 	return positions
 }
@@ -146,61 +196,56 @@ func searchGear(
 	numbers []NumberInLIne,
 	multSigns map[int][]int,
 	currentLine []string,
-	lineAbove bool,
-	lineBelow bool,
-) []int {
-	var gears []int
-	fmt.Println(multSigns)
-
-	// [
-	//   [467, 35]
-	//   [617, 598]
-	//   [617]
-	// ]
+	lineAbove []string,
+	lineBelow []string,
+	gears *map[int][]int,
+) {
 
 	for _, number := range numbers {
-		addAsGear := false
 
-		for i:= 0; i <= number.length; i++ {
-			limit := number.startIndex + number.length
-			start := number.startIndex
-			if start == 0 {
-				start -= 1
-			}
-			if lineAbove {
-				signs, exists := multSigns[matrixIndex - 1]
-				if exists && checkIfNumberIsSurroundedByMult(signs, start, limit) {
-					addAsGear = true
-					break
-				}
-			}
+		index := matrixIndex
+		limit := number.startIndex + number.length
+		start := number.startIndex
 
-			if lineBelow {
-				signs, exists := multSigns[matrixIndex + 1]
-
-				if exists && checkIfNumberIsSurroundedByMult(signs, start, limit) {
-					addAsGear = true
-					break
-				}
-			}
-
-			signs, exists := multSigns[matrixIndex]
-			if exists && checkIfNumberIsSurroundedByMult(signs, start, limit) {
-				addAsGear = true
-				break
-			}
+		if start > 0 {
+			start -= 1
 		}
 
-		if addAsGear {
-			gears = append(gears, number.number)
+		if lineAbove != nil {
+			index -= 1
+			signs, exists := multSigns[matrixIndex - 1]
+			if exists && checkIfNumberIsSurroundedByMult(index, signs, start, limit) {
+				g := *gears
+				g[index] = append(g[index], number.number)
+				continue
+			}
+			index = matrixIndex
+		}
+
+		if lineBelow != nil {
+			index += 1
+			signs, exists := multSigns[matrixIndex + 1]
+
+			if exists && checkIfNumberIsSurroundedByMult(index, signs, start, limit) {
+				g := *gears
+				g[index] = append(g[index], number.number)
+				continue
+			}
+			index = matrixIndex
+		}
+
+		signs, exists := multSigns[matrixIndex]
+		if exists && checkIfNumberIsSurroundedByMult(index, signs, start, limit) {
+			g := *gears
+			g[index] = append(g[index], number.number)
+			continue
 		}
 	}
-
-	return gears
 }
 
-func checkIfNumberIsSurroundedByMult(signsInLine []int, start int, end int) bool {
+func checkIfNumberIsSurroundedByMult(lineIndex int, signsInLine []int, start int, end int) bool {
 	for _, sign := range signsInLine {
+
 		if sign >= start && sign <= end {
 			return true
 		}

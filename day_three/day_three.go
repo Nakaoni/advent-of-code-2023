@@ -20,5 +20,5 @@ func main() {
 	resultTwo, errTwo := part_two.GetResult(lines)
 
 	utils.PrintResult("part_one", resultOne, errOne)
-	utils.PrintResult("part_ two", resultTwo, errTwo)
+	utils.PrintResult("part_two", resultTwo, errTwo)
 }
