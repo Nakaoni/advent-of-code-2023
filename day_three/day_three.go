@@ -17,6 +17,8 @@ func main() {
 	}
 
 	resultOne, errOne := part_one.GetResult(lines)
+
+	// Code is not working. Forgot to push last modification
 	resultTwo, errTwo := part_two.GetResult(lines)
 
 	utils.PrintResult("part_one", resultOne, errOne)
