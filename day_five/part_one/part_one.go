@@ -6,6 +6,18 @@ import (
 	"strconv"
 )
 
+type Range struct {
+	dest   int
+	source int
+	length int
+}
+
+type Map struct {
+	to string
+	rg []Range
+}
+
+
 func GetResult(input []string) (string, error) {
 	if len(input) == 0 {
 		return "", errors.New("empty input")
@@ -14,7 +26,45 @@ func GetResult(input []string) (string, error) {
 	seeds := getSeeds(input[0])
 	mappingRange := getMaps(input[2:])
 
+	var locations []int
+	for _, s := range seeds {
+		locations = append(locations, getLocation(s, mappingRange))
+	}
+
 	return input[0], nil
+}
+
+func getLocation(s int, mappingRange map[string]Map) int {
+	curr := "seed"
+	seed := mappingRange[curr]
+	to := seed.to
+	next := calculateDestination(s, seed.rg)
+
+	for to != "location" {
+		mr := mappingRange[to]
+		next = calculateDestination(next, mr.rg)
+		curr = to
+		to = mr.to
+	}
+
+	return calculateDestination(next, mappingRange[curr].rg)
+}
+
+func calculateDestination(destination int, rg []Range) int {
+	next := destination
+	for _, r := range rg {
+		if next >= r.source && next <= r.source + r.length {
+			for i, j := r.source, r.dest; i < r.source + r.length; i, j = i+1, j+1 {
+				if i == destination {
+					next = j
+					break
+				}
+			}
+			break
+		}
+	}
+
+	return next
 }
 
 func getSeeds(s string) []int {
@@ -24,22 +74,11 @@ func getSeeds(s string) []int {
 
 	seedsAsInt := make([]int, len(seeds))
 	for i := 0; i < len(seeds); i++ {
-		n, _ := strconv.Atoi(string(seeds[0]))
+		n, _ := strconv.Atoi(string(seeds[i]))
 		seedsAsInt[i] = n
 	}
 
 	return seedsAsInt
-}
-
-type Range struct {
-	dest int
-	source int
-	length int
-}
-
-type Map struct {
-	to string
-	rg []Range
 }
 
 func getMaps(input []string) map[string]Map {
@@ -82,7 +121,7 @@ func getMaps(input []string) map[string]Map {
 			lg, _ := strconv.Atoi(r[3])
 
 			rgs = append(rgs, Range{
-				dest: dest,
+				dest:   dest,
 				source: src,
 				length: lg,
 			})
